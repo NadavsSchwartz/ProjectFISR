@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require_relative '../config/environment.rb'
+
+new_menu = Menu.new
+new_menu.run
