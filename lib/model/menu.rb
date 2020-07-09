@@ -21,19 +21,19 @@ class Menu
     size = TTY::Prompt.new
     puts "\e[2J\e[f"
     get_size = size.slider("\nAmount of results you wish to see:".bold, min: 1, max: 20, step: 1, default: 5)
-    RestaurantAPI.new(get_state, get_size).get_state
-    options = []
+    RestaurantAPI.new(get_state, get_size).get_state_or_zip('state')
+    @options = []
     Restaurant.all.select do |restaurant|
-      options << "#{restaurant.name} located at #{restaurant.address['formatted']}.\n"
+      @options << "#{restaurant.name} located at #{restaurant.address['formatted']}.\n"
     end
-    if options.empty?
+    if @options.empty?
       puts "We couldn't locate any restaurants with that parameter, please try again."
       print_restaurant_state
     end
     rest = TTY::Prompt.new
     get_rest_info = rest.multi_select(
       "\nSelect the Restaurant you would like to see more details on:\n\n",
-      options,
+      @options,
       min: 1,
       max: 1,
       require: true,
@@ -51,20 +51,20 @@ class Menu
     size = TTY::Prompt.new
     puts "\e[2J\e[f"
     get_size = size.slider("\nAmount of results you wish to see:".bold, min: 1, max: 20, step: 1, default: 5)
-    RestaurantAPI.new(get_zip, get_size).get_zipcode
-    options = []
+    RestaurantAPI.new(get_zip, get_size).get_state_or_zip('zip_code')
+    @options = []
     Restaurant.all.select do |restaurant|
-      options << "#{restaurant.name} located at #{restaurant.address['formatted']}.\n"
+      @options << "#{restaurant.name} located at #{restaurant.address['formatted']}.\n"
     end
-    if options.empty?
+    if @options.empty?
       puts "We couldn't locate any restaurants with that parameter, please try again."
-      puts "Chances are that location isn't updated in our database yet!\n"
+      puts "Chances are, that location isn't updated in our database yet!\n"
       print_restaurant_zip
     end
     rest = TTY::Prompt.new
     get_rest_info = rest.multi_select(
       "\nSelect the Restaurant you would like to see more details on:\n\n",
-      options,
+      @options,
       min: 1,
       max: 1,
       require: true,
@@ -107,10 +107,20 @@ class Menu
     end
     sleep(1)
     continue = TTY::Prompt.new
-    to_continue = continue.select('What would you like to do next?', { name: 'Look up another Restaurant', disabled: '- (Under construction)' }, 'Restart the program', 'exit')
+    to_continue = continue.select('What would you like to do next?', 'Look up another Restaurant', 'Restart the program', 'exit')
     case to_continue
-    when 'Loop up another Restaurant'
-      @get_rest_info
+    when 'Look up another Restaurant'
+      look_up = TTY::Prompt.new
+      updated_choices = @options
+      get_look_up = look_up.multi_select(
+        "\nSelect the Restaurant you would like to see more details on:\n\n",
+        updated_choices,
+        min: 1,
+        max: 1,
+        require: true,
+        per_page: 10
+      )
+      print_review(get_look_up)
     when 'Restart the program'
       puts "\e[2J\e[f"
       welcome
