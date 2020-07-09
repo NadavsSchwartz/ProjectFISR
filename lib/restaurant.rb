@@ -12,4 +12,5 @@ class Restaurant
   def self.all
     @@all
   end
+
 end

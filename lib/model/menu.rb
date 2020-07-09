@@ -1,5 +1,6 @@
 class Menu
   def welcome
+    binding.pry
     input = TTY::Prompt.new
     res = input.select("Choose how you would like to look up Restaurants, or exit to exit.\n", %w[ZipCode State exit])
     case res
@@ -78,7 +79,7 @@ class Menu
     puts "We're working on your request! we got our best man on it!.\n".bold.green
     params = {
       q: input.to_s,
-      api_key: '79eb4d5a85e83cd0d3889c559d1d9c21718675646ee3211f4625e6e8728d3eee'
+      api_key: ENV['GOOGLE_API']
     }
     client = GoogleSearchResults.new(params)
     knowledge_graph = client.get_hash[:knowledge_graph]

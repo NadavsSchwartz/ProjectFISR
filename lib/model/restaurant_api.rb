@@ -11,7 +11,7 @@ class RestaurantAPI
       "https://us-restaurant-menus.p.rapidapi.com/restaurants/#{method}/#{input}?size=#{size}",
       headers: {
         'X-RapidAPI-Host' => 'us-restaurant-menus.p.rapidapi.com',
-        'X-RapidAPI-Key' => ENV['API']
+        'X-RapidAPI-Key' => ENV['PUBLIC_API']
       }
     )
     res['result']['data'].each do |index|
