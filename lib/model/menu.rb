@@ -1,132 +1,100 @@
 class Menu
+  attr_accessor :rest_API
+
   def welcome
-    binding.pry
     input = TTY::Prompt.new
-    res = input.select("Choose how you would like to look up Restaurants, or exit to exit.\n", %w[ZipCode State exit])
+    res = input.select("Choose how you would like to look up Restaurants, or exit.\n", %w[ZipCode State exit])
+    @rest_API = RestaurantAPI.new
     case res
     when 'State'
-      print_restaurant_state
+      get_state = get_restaurant_state
+      get_size = get_restaurant_size
+      @rest_API.set_url_by_state(get_state, get_size)
     when 'ZipCode'
-      print_restaurant_zip
+      get_zip = get_restaurant_zip
+      get_size = get_restaurant_size
+      @rest_API.set_url_by_zip(get_zip, get_size)
     when 'exit'
       exit
     end
-  end
-
-  def print_restaurant_state
-    state = TTY::Prompt.new
-    get_state = state.ask("\nEnter the 2 State digits:", required: true) do |q|
-      q.modify :remove
-      q.validate(/[a-z]{2}/i, 'Invalid input. must be two letters')
-    end
-    size = TTY::Prompt.new
-    puts "\e[2J\e[f"
-    get_size = size.slider("\nAmount of results you wish to see:".bold, min: 1, max: 20, step: 1, default: 5)
-    RestaurantAPI.new(get_state, get_size).get_state_or_zip('state')
-    @options = []
-    Restaurant.all.select do |restaurant|
-      @options << "#{restaurant.name} located at #{restaurant.address['formatted']}.\n"
-    end
-    if @options.empty?
-      puts "We couldn't locate any restaurants with that parameter, please try again."
-      print_restaurant_state
-    end
+    @rest_API.get_data
+    @manager.receiver(@rest_API.data)
     rest = TTY::Prompt.new
     get_rest_info = rest.multi_select(
       "\nSelect the Restaurant you would like to see more details on:\n\n",
-      @options,
+      @manager.outputer,
       min: 1,
       max: 1,
       require: true,
-      per_page: 10
+      per_page: 6
     )
-    print_review(get_rest_info)
+    @rest_API.get_review_data(get_rest_info)
+    @manager.outputer_review(@rest_API.review_data)
+    continue_review
   end
 
-  def print_restaurant_zip
+  def get_restaurant_zip
     zip = TTY::Prompt.new
     get_zip = zip.ask("\nEnter the 5 digits ZipCode:", required: true) do |q|
       q.modify :remove
       q.validate(/^\d{5}(-\d{4})?$/, "Invalid input. must be 5 numbers\n")
     end
+    get_zip
+  end
+
+  def get_restaurant_size
     size = TTY::Prompt.new
     puts "\e[2J\e[f"
     get_size = size.slider("\nAmount of results you wish to see:".bold, min: 1, max: 20, step: 1, default: 5)
-    RestaurantAPI.new(get_zip, get_size).get_state_or_zip('zip_code')
-    @options = []
-    Restaurant.all.select do |restaurant|
-      @options << "#{restaurant.name} located at #{restaurant.address['formatted']}.\n"
-    end
-    if @options.empty?
-      puts "We couldn't locate any restaurants with that parameter, please try again."
-      puts "Chances are, that location isn't updated in our database yet!\n"
-      print_restaurant_zip
-    end
-    rest = TTY::Prompt.new
-    get_rest_info = rest.multi_select(
-      "\nSelect the Restaurant you would like to see more details on:\n\n",
-      @options,
-      min: 1,
-      max: 1,
-      require: true,
-      per_page: 10
-    )
-    print_review(get_rest_info)
+    get_size
   end
 
-  def print_review(input)
-    Restaurant.all.clear
-    puts "We're working on your request! we got our best man on it!.\n".bold.green
-    params = {
-      q: input.to_s,
-      api_key: ENV['GOOGLE_API']
-    }
-    client = GoogleSearchResults.new(params)
-    knowledge_graph = client.get_hash[:knowledge_graph]
-    puts "\e[2J\e[f"
-    if !knowledge_graph.nil?
-      case knowledge_graph[:order]
-      when nil
-        puts(
-          "\nTitle: #{knowledge_graph[:title]} is located at #{knowledge_graph[:address]}",
-          "\nType: #{knowledge_graph[:type]}.",
-          "\nRating: #{knowledge_graph[:rating]}.".bold.green,
-          "\nReview Count:#{knowledge_graph[:review_count]}.".bold.green
-        )
-      else
-        puts(
-          "\nTitle: #{knowledge_graph[:title]} is located at #{knowledge_graph[:address]}",
-          "\nType: #{knowledge_graph[:type]}.",
-          "\nRating: #{knowledge_graph[:rating]}.".bold.red,
-          "\nReview Count:#{knowledge_graph[:review_count]}.".bold.red,
-          "\nIf you feel like it, you can find #{knowledge_graph[:title]} in any of these platforms:\n",
-          "#{knowledge_graph[:order]}\n".bold.blue
-        )
-      end
-    else
-      puts "Sorry, couldn't fetch any results. perhaps we try again?\n\n"
+  def get_restaurant_state
+    state = TTY::Prompt.new
+    get_state = state.ask("\nEnter the 2 State digits:", required: true) do |q|
+      q.modify :remove
+      q.validate(/[a-z]{2}/i, 'Invalid input. must be two letters')
     end
-    sleep(1)
+    get_state
+  end
+
+  def continue_review
     continue = TTY::Prompt.new
-    to_continue = continue.select('What would you like to do next?', 'Look up another Restaurant', 'Restart the program', 'exit')
+    to_continue = continue.select('What would you like to do next?', 'Look up another Restaurant', 'Restart the program', 'send the info to your email', 'exit')
     case to_continue
+    when 'exit'
+      exit
+
     when 'Look up another Restaurant'
+      puts "\e[2J\e[f"
       look_up = TTY::Prompt.new
-      updated_choices = @options
       get_look_up = look_up.multi_select(
         "\nSelect the Restaurant you would like to see more details on:\n\n",
-        updated_choices,
+        @manager.outputer,
         min: 1,
         max: 1,
         require: true,
-        per_page: 10
+        per_page: 6
       )
-      print_review(get_look_up)
+      @rest_API.get_review_data(get_look_up)
+      @manager.outputer_review(@rest_API.review_data)
+      continue_review
     when 'Restart the program'
       puts "\e[2J\e[f"
       welcome
-    else
-      exit
+      @manager.all.clear
+      @manager.outputer.clear
+    when 'send the info to your email'
+      new_mail_class = Email.new
+      receive_email = TTY::Prompt.new
+      send_email_to_user = receive_email.ask('What is your email?') { |q| q.validate :email }
+      new_mail_class.user_ia(send_email_to_user)
+      new_mail_class.email_sender(@rest_API.review_data)
+      puts 'success!, Program is shutting down, if you wish, you can restart it.'.green.bold
+      puts @manager.outputer_review(@manager.outputer_review(@rest_API.review_data))
+      @manager.all.clear
+      @manager.outputer.clear
+      welcome
     end
   end
 
@@ -137,6 +105,7 @@ class Menu
     sleep(0.7)
     puts "We're getting things ready, just a second please...\n\n".blue.bold
     sleep(1.5)
+    @manager = RestaurantManager.new
     welcome
   end
 end
