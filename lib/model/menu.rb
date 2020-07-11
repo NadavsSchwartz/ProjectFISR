@@ -89,10 +89,9 @@ class Menu
       send_email_to_user = receive_email.ask('What is your email?') { |q| q.validate :email }
       new_mail_class.user_ia(send_email_to_user)
       new_mail_class.email_sender(@rest_API.review_data)
-      puts 'success!, Program is shutting down, if you wish, you can restart it.'.green.bold
-      puts @manager.outputer_review(@manager.outputer_review(@rest_API.review_data))
-      @manager.all.clear
+      puts 'success!.\n'.green.bold
       @manager.outputer.clear
+      @manager.all.clear
       welcome
     end
   end
