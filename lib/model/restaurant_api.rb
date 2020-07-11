@@ -19,7 +19,7 @@ class RestaurantAPI
       @url,
       headers: {
         'X-RapidAPI-Host' => 'us-restaurant-menus.p.rapidapi.com',
-        'X-RapidAPI-Key' => 'ed0caca792msh55626e3d690cd83p155759jsn28e2714c018d'
+        'X-RapidAPI-Key' => ENV['PUBLIC_API']
       }
     )
     if @data['result']['totalResults'] < 1
