@@ -1,6 +1,5 @@
 class Menu
   attr_accessor :rest_API
-
   def welcome
     input = TTY::Prompt.new
     res = input.select("Choose how you would like to look up Restaurants, or exit.\n", %w[ZipCode State exit])

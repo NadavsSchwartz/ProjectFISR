@@ -46,5 +46,6 @@ class RestaurantManager
     else
       puts "Sorry, couldn't fetch any results. perhaps we try again?\n\n"
     end
+    sleep(1)
   end
 end
