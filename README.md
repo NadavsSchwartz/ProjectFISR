@@ -1,8 +1,7 @@
 # ProjectFIS
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ProjectFIS`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A simple program to locate restaurants in a desired State or ZipCode,
+with an option to check restaurant's reviews and rating, and have the results sent to your preffered email.
 
 ## Installation
 
@@ -22,7 +21,12 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+run `bin/runer` for an interactive prompt.
+
+Note:
+in order to use the send-mail feature, a gmail account will be needed,
+in order to look up restaurant via the us.restaurant-menu api, an api is required,
+in order to make a query for google and get the location's reviews and rating, an api from serpapi is required.
 
 ## Development
 
