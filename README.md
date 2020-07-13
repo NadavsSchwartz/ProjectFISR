@@ -23,6 +23,11 @@ Or install it yourself as:
 
 run `bin/runer` for an interactive prompt.
 
+Note:
+in order to use the send-mail feature, a gmail account will be needed,
+in order to look up restaurant via the us.restaurant-menu api, an api is required,
+in order to make a query for google and get the location's reviews and rating, an api from serpapi is required.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
