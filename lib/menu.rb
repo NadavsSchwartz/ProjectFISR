@@ -95,9 +95,9 @@ class Menu
       continue
     when 'Restart the program' # restarting the program
       puts "\e[2J\e[f"
-      welcome
       @manager.database.clear
       @manager.print_options.clear
+      welcome
     when 'send the info to your email' # send the result to the user email
       new_mail = Email.new
       get_user_email = TTY::Prompt.new
