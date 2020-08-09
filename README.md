@@ -3,21 +3,6 @@
 A simple program to locate restaurants in a desired State or ZipCode,
 with an option to check restaurant's reviews and rating, and have the results sent to your preffered email.
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'ProjectFIS'
-```
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install ProjectFIS
 
 ## Usage
 
